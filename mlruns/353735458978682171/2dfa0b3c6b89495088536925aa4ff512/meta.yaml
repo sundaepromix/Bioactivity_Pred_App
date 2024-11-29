@@ -1,0 +1,16 @@
+artifact_uri: file:///C:/Users/Promise Sunday/Documents/mlruns/353735458978682171/2dfa0b3c6b89495088536925aa4ff512/artifacts
+deleted_time: 1732872216265
+end_time: 1732868520423
+entry_point_name: ''
+experiment_id: '353735458978682171'
+lifecycle_stage: deleted
+run_id: 2dfa0b3c6b89495088536925aa4ff512
+run_name: catboost_20241129_092158
+run_uuid: 2dfa0b3c6b89495088536925aa4ff512
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1732868518744
+status: 4
+tags: []
+user_id: Promise Sunday
