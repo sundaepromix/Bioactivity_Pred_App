@@ -2,9 +2,15 @@ import streamlit as st
 import pandas as pd
 import mlflow
 import mlflow.sklearn
+import os
 
-# Set MLflow tracking URI
-mlflow.set_tracking_uri("file:///C:/Users/Promise Sunday/Documents/mlruns")
+# Set MLflow tracking URI based on environment
+if os.path.exists("C:/Users/Promise Sunday/Documents/mlruns"):
+    # Local path
+    mlflow.set_tracking_uri("file:///C:/Users/Promise Sunday/Documents/mlruns")
+else:
+    # Deployment path
+    mlflow.set_tracking_uri("file:///mount/src/jewelry-price-optimization/mlruns")
 
 def load_best_model():
     """
@@ -13,7 +19,7 @@ def load_best_model():
     try:
         # Access the MLflow client
         client = mlflow.tracking.MlflowClient()
-        experiment_name = "jewelry_price_optimization"  
+        experiment_name = "jewelry_price_optimization"  # Replace with your experiment name
         
         # Get the experiment
         experiment = client.get_experiment_by_name(experiment_name)
@@ -31,7 +37,7 @@ def load_best_model():
 
         # Get the best run's artifact path
         best_run = runs[0]
-        model_uri = f"runs:/{best_run.info.run_id}/catboost_model"  
+        model_uri = f"runs:/{best_run.info.run_id}/catboost_model"  # Update 'catboost_model' if needed
         
         # Load the model
         model = mlflow.sklearn.load_model(model_uri)
