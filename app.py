@@ -4,7 +4,8 @@ import mlflow
 import mlflow.sklearn
 
 # Set MLflow tracking URI
-mlflow.set_tracking_uri("file:///C:/Users/Promise Sunday/Documents/mlruns")
+tracking_uri = os.path.join(Path.home(), "Documents", "mlruns")
+mlflow.set_tracking_uri(f"file://{tracking_uri}")
 
 def load_best_model():
     """
