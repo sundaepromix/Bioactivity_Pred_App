@@ -19,7 +19,7 @@ def load_best_model():
     try:
         # Access the MLflow client
         client = mlflow.tracking.MlflowClient()
-        experiment_name = "jewelry_price_optimization"  # Replace with your experiment name
+        experiment_name = "jewelry_price_optimization"
         
         # Get the experiment
         experiment = client.get_experiment_by_name(experiment_name)
@@ -37,7 +37,7 @@ def load_best_model():
 
         # Get the best run's artifact path
         best_run = runs[0]
-        model_uri = f"runs:/{best_run.info.run_id}/catboost_model"  # Update 'catboost_model' if needed
+        model_uri = f"runs:/{best_run.info.run_id}/catboost_model"
         
         # Load the model
         model = mlflow.sklearn.load_model(model_uri)
