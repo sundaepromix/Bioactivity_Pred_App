@@ -21,15 +21,10 @@ def load_best_model():
     """
     try:
         client = mlflow.tracking.MlflowClient()
-        experiment_name = "jewelry_price_optimization"
+        experiment_id = "353735458978682171"
         
-        experiment = client.get_experiment_by_name(experiment_name)
-        if not experiment:
-            st.error("Experiment not found. Please check the experiment name.")
-            return None
-
         runs = client.search_runs(
-            experiment_ids=[experiment.experiment_id],
+            experiment_ids=[experiment_id],
             order_by=["metrics.test_r2 DESC"],
             max_results=1
         )
