@@ -2,38 +2,38 @@ import streamlit as st
 import pandas as pd
 import mlflow
 import mlflow.sklearn
-import os
-from pathlib import Path
 
-# Set page config
-st.set_page_config(
-    page_title="Jewelry Price Prediction",
-    page_icon="💎",
-    layout="wide"
-)
-
-# Set MLflow tracking URI for deployment
-mlflow.set_tracking_uri("file:///mount/src/jewelry-price-optimization/mlruns")
+# Set MLflow tracking URI
+mlflow.set_tracking_uri("file:///C:/Users/Promise Sunday/Documents/mlruns")
 
 def load_best_model():
     """
     Load the best model based on the highest test_r2 metric.
     """
     try:
+        # Access the MLflow client
         client = mlflow.tracking.MlflowClient()
-        experiment_id = "353735458978682171"
+        experiment_name = "jewelry_price_optimization"  
         
+        # Get the experiment
+        experiment = client.get_experiment_by_name(experiment_name)
+        if not experiment:
+            raise ValueError("Experiment not found. Check the experiment name.")
+
+        # Search for the best run (highest test_r2)
         runs = client.search_runs(
-            experiment_ids=[experiment_id],
+            experiment_ids=[experiment.experiment_id],
             order_by=["metrics.test_r2 DESC"],
             max_results=1
         )
         if not runs:
-            st.error("No runs found in the experiment.")
-            return None
+            raise ValueError("No runs found in the experiment.")
 
+        # Get the best run's artifact path
         best_run = runs[0]
-        model_uri = f"runs:/{best_run.info.run_id}/catboost_model"
+        model_uri = f"runs:/{best_run.info.run_id}/catboost_model"  
+        
+        # Load the model
         model = mlflow.sklearn.load_model(model_uri)
         return model
 
@@ -41,43 +41,41 @@ def load_best_model():
         st.error(f"Error loading model: {str(e)}")
         return None
 
+
 def main():
     """
     Main Streamlit application function for jewelry price prediction.
     """
-    st.title("💎 Jewelry Price Prediction")
-    st.write("Enter product details to predict the optimal price.")
+    st.title("Jewelry Price Prediction")
 
     # Load the model
     model = load_best_model()
     if not model:
-        st.stop()
+        return
 
-    col1, col2 = st.columns(2)
+    st.header("Enter Product Details")
 
-    with col1:
-        category = st.selectbox(
-            "Category",
-            options=[
-                "jewelry.pendant",
-                "jewelry.necklace",
-                "jewelry.earring",
-                "jewelry.ring",
-                "jewelry.brooch",
-                "jewelry.bracelet",
-                "jewelry.souvenir",
-                "jewelry.stud"
-            ]
-        )
-        brand_id = st.radio("Brand ID", [0, 1], format_func=lambda x: f"Brand {x}")
-        target_gender = st.selectbox("Target Gender", options=["f", "m", None])
+    # Input fields
+    category = st.selectbox(
+        "Category",
+        [
+            "jewelry.pendant",
+            "jewelry.necklace",
+            "jewelry.earring",
+            "jewelry.ring",
+            "jewelry.brooch",
+            "jewelry.bracelet",
+            "jewelry.souvenir",
+            "jewelry.stud"
+        ]
+    )
+    brand_id = st.radio("Brand ID", [0, 1], format_func=lambda x: f"Brand {x}")
+    target_gender = st.selectbox("Target Gender", ["f", "m", None])
+    main_color = st.selectbox("Main Color", ["yellow", "white", "red", None])
+    main_metal = st.selectbox("Main Metal", ["gold", None])
+    main_gem = st.selectbox("Main Gem", ["sapphire", "diamond", "amethyst", None])
 
-    with col2:
-        main_color = st.selectbox("Main Color", options=["yellow", "white", "red", None])
-        main_metal = st.selectbox("Main Metal", options=["gold", None])
-        main_gem = st.selectbox("Main Gem", options=["sapphire", "diamond", "amethyst", None])
-
-    if st.button("Predict Price", type="primary"):
+    if st.button("Predict Price"):
         # Create input dataframe
         input_data = pd.DataFrame({
             "Category": [category],
@@ -91,19 +89,11 @@ def main():
         try:
             # Predict the price
             prediction = model.predict(input_data)[0]
-            
-            # Display results
             st.success(f"Predicted Price: ${prediction:.2f}")
-            
-            # Show price range
-            st.info(
-                f"Suggested Price Range:\n"
-                f"- Minimum: ${prediction * 0.9:.2f}\n"
-                f"- Maximum: ${prediction * 1.1:.2f}"
-            )
-            
+            st.info(f"Suggested Price Range: ${prediction * 0.9:.2f} - ${prediction * 1.1:.2f}")
         except Exception as e:
             st.error(f"Prediction error: {str(e)}")
+
 
 if __name__ == "__main__":
     main()
