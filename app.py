@@ -13,9 +13,10 @@ st.set_page_config(
 )
 
 try:
-    # Simplified path for deployment
-    tracking_uri = "mlruns"
-    mlflow.set_tracking_uri(f"file://{tracking_uri}")
+    # Set MLflow tracking URI based on current directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    tracking_uri = os.path.join(current_dir, "mlruns")
+    mlflow.set_tracking_uri(f"file:///{tracking_uri}")
 
     def load_best_model():
         """
