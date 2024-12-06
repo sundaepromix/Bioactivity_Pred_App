@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import mlflow
 import mlflow.sklearn
+import os 
+from pathlib import Path
 
 # Set MLflow tracking URI
 tracking_uri = os.path.join(Path.home(), "Documents", "mlruns")

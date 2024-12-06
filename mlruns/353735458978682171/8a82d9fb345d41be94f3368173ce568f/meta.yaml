@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Promise Sunday/Documents/mlruns/353735458978682171/8a82d9fb345d41be94f3368173ce568f/artifacts
+end_time: 1733494493144
+entry_point_name: ''
+experiment_id: '353735458978682171'
+lifecycle_stage: active
+run_id: 8a82d9fb345d41be94f3368173ce568f
+run_name: extra_trees_20241206_151427
+run_uuid: 8a82d9fb345d41be94f3368173ce568f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733494467271
+status: 3
+tags: []
+user_id: Promise Sunday
