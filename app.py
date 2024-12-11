@@ -30,7 +30,7 @@ def build_model(input_data):
     prediction = load_model.predict(input_data)
     st.header('**Prediction output**')
     prediction_output = pd.Series(prediction, name='pIC50')
-    molecule_name = pd.Series(load_data[1], name='molecule_name')
+    molecule_name = pd.Series(load_data.iloc[:,0], name='molecule_name')  # Get first column
     df = pd.concat([molecule_name, prediction_output], axis=1)
     st.write(df)
     st.markdown(filedownload(df), unsafe_allow_html=True)
