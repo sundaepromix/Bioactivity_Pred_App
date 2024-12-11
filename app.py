@@ -42,8 +42,8 @@ st.image(image, use_column_width=True)
 # Page title
 st.markdown("""
 # Bioactivity Prediction App (Enoyl_Acyl_Carrier_Protein_Reductase)
-
 This app allows you to predict the bioactivity towards inhibting the `Enoyl Acyl Carrier Protein Reductase` enzyme. `Enoyl Acyl Carrier Protein Reductase` is a drug target for Tuberculosis's disease.
+""")
 
 # Sidebar
 with st.sidebar.header('1. Upload your CSV data'):
