@@ -5,6 +5,7 @@ import subprocess
 import os
 import base64
 import pickle
+from sklearn.feature_selection import VarianceThreshold
 
 # Molecular descriptor calculator
 def desc_calc():
@@ -58,21 +59,19 @@ if st.sidebar.button('Predict'):
     st.header('**Calculated molecular descriptors**')
     desc = pd.read_csv('Bioactivity data folder/descriptors_output.csv')
     
-    # Create Xlist with all PubchemFP columns (excluding the 'Name' column)
-    Xlist = [col for col in desc.columns if col.startswith('PubchemFP')]
-    
-    # Create the subset using Xlist
-    desc_subset = desc[Xlist]
+    # Apply the same feature selection as during training
+    selection = VarianceThreshold(threshold=(.8 * (1 - .8)))    
+    X = selection.fit_transform(desc.iloc[:,1:])  # Exclude 'Name' column
     
     st.write(desc)
     st.write(desc.shape)
 
     # Show the subset of descriptors
     st.header('**Subset of descriptors from previously built models**')
-    st.write(desc_subset)
-    st.write(desc_subset.shape)
+    st.write(X)
+    st.write(X.shape)
 
     # Apply trained model to make prediction on query compounds
-    build_model(desc_subset)
+    build_model(X)
 else:
     st.info('Upload input data in the sidebar to start!')
