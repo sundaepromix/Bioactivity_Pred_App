@@ -34,11 +34,6 @@ def build_model(input_data):
     st.write(df)
     st.markdown(filedownload(df), unsafe_allow_html=True)
 
-# Logo image
-image = Image.open('logo.png')
-
-st.image(image, use_column_width=True)
-
 # Page title
 st.markdown("""
 # Bioactivity Prediction App (Enoyl_Acyl_Carrier_Protein_Reductase)
