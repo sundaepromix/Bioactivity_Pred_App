@@ -41,8 +41,8 @@ This app allows you to predict the bioactivity towards inhibting the `Enoyl Acyl
 """)
 
 # Sidebar
-with st.sidebar.header('1. Upload your CSV data'):
-    uploaded_file = st.sidebar.file_uploader("Upload your input file", type=['txt'])
+st.sidebar.header('1. Upload your CSV data')
+uploaded_file = st.sidebar.file_uploader("Upload your input file", type=['txt'])
 
 if st.sidebar.button('Predict'):
     load_data = pd.read_table(uploaded_file, sep=' ', header=None)
@@ -57,13 +57,18 @@ if st.sidebar.button('Predict'):
     # Read in calculated descriptors and display the dataframe
     st.header('**Calculated molecular descriptors**')
     desc = pd.read_csv('Bioactivity data folder/descriptors_output.csv')
+    
+    # Create Xlist with all PubchemFP columns (excluding the 'Name' column)
+    Xlist = [col for col in desc.columns if col.startswith('PubchemFP')]
+    
+    # Create the subset using Xlist
+    desc_subset = desc[Xlist]
+    
     st.write(desc)
     st.write(desc.shape)
 
-    # Read descriptor list used in previously built model
+    # Show the subset of descriptors
     st.header('**Subset of descriptors from previously built models**')
-    Xlist = list(pd.read_csv('Bioactivity data folder/descriptor_list.csv').columns)
-    desc_subset = desc[Xlist]
     st.write(desc_subset)
     st.write(desc_subset.shape)
 
