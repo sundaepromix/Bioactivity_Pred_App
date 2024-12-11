@@ -62,7 +62,7 @@ if st.sidebar.button('Predict'):
 
     # Read descriptor list used in previously built model
     st.header('**Subset of descriptors from previously built models**')
-    Xlist = list(pd.read_csv('descriptor_list.csv').columns)
+    Xlist = list(pd.read_csv('Bioactivity data folder/descriptor_list.csv').columns)
     desc_subset = desc[Xlist]
     st.write(desc_subset)
     st.write(desc_subset.shape)
