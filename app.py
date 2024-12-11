@@ -48,7 +48,6 @@ This app allows you to predict the bioactivity towards inhibting the `Enoyl Acyl
 # Sidebar
 with st.sidebar.header('1. Upload your CSV data'):
     uploaded_file = st.sidebar.file_uploader("Upload your input file", type=['txt'])
-    st.sidebar.markdown("""
 
 if st.sidebar.button('Predict'):
     load_data = pd.read_table(uploaded_file, sep=' ', header=None)
