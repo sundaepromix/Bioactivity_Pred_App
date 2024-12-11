@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Promise Sunday/Documents/mlruns/353735458978682171/20cbec9d64e3448eb2988964f57d99d5/artifacts
+end_time: 1733511291107
+entry_point_name: ''
+experiment_id: '353735458978682171'
+lifecycle_stage: active
+run_id: 20cbec9d64e3448eb2988964f57d99d5
+run_name: sedate-dog-829
+run_uuid: 20cbec9d64e3448eb2988964f57d99d5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733511291048
+status: 3
+tags: []
+user_id: Promise Sunday

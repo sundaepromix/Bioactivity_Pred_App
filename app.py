@@ -1,105 +1,79 @@
 import streamlit as st
 import pandas as pd
-import mlflow
-import mlflow.sklearn
+from PIL import Image
+import subprocess
 import os
+import base64
+import pickle
 
-# Set MLflow tracking URI based on environment
-if os.path.exists("C:/Users/Promise Sunday/Documents/mlruns"):
-    # Local path
-    mlflow.set_tracking_uri("file:///C:/Users/Promise Sunday/Documents/mlruns")
+# Molecular descriptor calculator
+def desc_calc():
+    # Performs the descriptor calculation
+    bashCommand = "java -Xms2G -Xmx2G -Djava.awt.headless=true -jar ./PaDEL-Descriptor/PaDEL-Descriptor.jar -removesalt -standardizenitro -fingerprints -descriptortypes ./PaDEL-Descriptor/PubchemFingerprinter.xml -dir ./ -file descriptors_output.csv"
+    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+    output, error = process.communicate()
+    os.remove('molecule.smi')
+
+# File download
+def filedownload(df):
+    csv = df.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
+    href = f'<a href="data:file/csv;base64,{b64}" download="prediction.csv">Download Predictions</a>'
+    return href
+
+# Model building
+def build_model(input_data):
+    # Reads in saved regression model
+    load_model = pickle.load(open('enoyl_acyl_carrier_protein_reductase_model.pkl', 'rb'))
+    # Apply model to make predictions
+    prediction = load_model.predict(input_data)
+    st.header('**Prediction output**')
+    prediction_output = pd.Series(prediction, name='pIC50')
+    molecule_name = pd.Series(load_data[1], name='molecule_name')
+    df = pd.concat([molecule_name, prediction_output], axis=1)
+    st.write(df)
+    st.markdown(filedownload(df), unsafe_allow_html=True)
+
+# Logo image
+image = Image.open('logo.png')
+
+st.image(image, use_column_width=True)
+
+# Page title
+st.markdown("""
+# Bioactivity Prediction App (Enoyl_Acyl_Carrier_Protein_Reductase)
+
+This app allows you to predict the bioactivity towards inhibting the `Enoyl Acyl Carrier Protein Reductase` enzyme. `Enoyl Acyl Carrier Protein Reductase` is a drug target for Tuberculosis's disease.
+
+# Sidebar
+with st.sidebar.header('1. Upload your CSV data'):
+    uploaded_file = st.sidebar.file_uploader("Upload your input file", type=['txt'])
+    st.sidebar.markdown("""
+
+if st.sidebar.button('Predict'):
+    load_data = pd.read_table(uploaded_file, sep=' ', header=None)
+    load_data.to_csv('molecule.smi', sep = '\t', header = False, index = False)
+
+    st.header('**Original input data**')
+    st.write(load_data)
+
+    with st.spinner("Calculating descriptors..."):
+        desc_calc()
+
+    # Read in calculated descriptors and display the dataframe
+    st.header('**Calculated molecular descriptors**')
+    desc = pd.read_csv('descriptors_output.csv')
+    st.write(desc)
+    st.write(desc.shape)
+
+    # Read descriptor list used in previously built model
+    st.header('**Subset of descriptors from previously built models**')
+    Xlist = list(pd.read_csv('descriptor_list.csv').columns)
+    desc_subset = desc[Xlist]
+    st.write(desc_subset)
+    st.write(desc_subset.shape)
+
+    # Apply trained model to make prediction on query compounds
+    build_model(desc_subset)
 else:
-    # Deployment path
-    mlflow.set_tracking_uri("file:///mount/src/jewelry-price-optimization/mlruns")
-
-def load_best_model():
-    """
-    Load the best model based on the highest test_r2 metric.
-    """
-    try:
-        # Access the MLflow client
-        client = mlflow.tracking.MlflowClient()
-        experiment_name = "jewelry_price_optimization"
-        
-        # Get the experiment
-        experiment = client.get_experiment_by_name(experiment_name)
-        if not experiment:
-            raise ValueError("Experiment not found. Check the experiment name.")
-
-        # Search for the best run (highest test_r2)
-        runs = client.search_runs(
-            experiment_ids=[experiment.experiment_id],
-            order_by=["metrics.test_r2 DESC"],
-            max_results=1
-        )
-        if not runs:
-            raise ValueError("No runs found in the experiment.")
-
-        # Get the best run's artifact path
-        best_run = runs[0]
-        model_uri = f"runs:/{best_run.info.run_id}/catboost_model"
-        
-        # Load the model
-        model = mlflow.sklearn.load_model(model_uri)
-        return model
-
-    except Exception as e:
-        st.error(f"Error loading model: {str(e)}")
-        return None
-
-
-def main():
-    """
-    Main Streamlit application function for jewelry price prediction.
-    """
-    st.title("Jewelry Price Prediction")
-
-    # Load the model
-    model = load_best_model()
-    if not model:
-        return
-
-    st.header("Enter Product Details")
-
-    # Input fields
-    category = st.selectbox(
-        "Category",
-        [
-            "jewelry.pendant",
-            "jewelry.necklace",
-            "jewelry.earring",
-            "jewelry.ring",
-            "jewelry.brooch",
-            "jewelry.bracelet",
-            "jewelry.souvenir",
-            "jewelry.stud"
-        ]
-    )
-    brand_id = st.radio("Brand ID", [0, 1], format_func=lambda x: f"Brand {x}")
-    target_gender = st.selectbox("Target Gender", ["f", "m", None])
-    main_color = st.selectbox("Main Color", ["yellow", "white", "red", None])
-    main_metal = st.selectbox("Main Metal", ["gold", None])
-    main_gem = st.selectbox("Main Gem", ["sapphire", "diamond", "amethyst", None])
-
-    if st.button("Predict Price"):
-        # Create input dataframe
-        input_data = pd.DataFrame({
-            "Category": [category],
-            "Brand_ID": [brand_id],
-            "Target_Gender": [target_gender],
-            "Main_Color": [main_color],
-            "Main_Metal": [main_metal],
-            "Main_Gem": [main_gem]
-        })
-
-        try:
-            # Predict the price
-            prediction = model.predict(input_data)[0]
-            st.success(f"Predicted Price: ${prediction:.2f}")
-            st.info(f"Suggested Price Range: ${prediction * 0.9:.2f} - ${prediction * 1.1:.2f}")
-        except Exception as e:
-            st.error(f"Prediction error: {str(e)}")
-
-
-if __name__ == "__main__":
-    main()
+    st.info('Upload input data in the sidebar to start!')
